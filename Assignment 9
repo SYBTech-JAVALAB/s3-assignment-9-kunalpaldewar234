@@ -1,0 +1,130 @@
+import java.io.*;
+import java.util.Scanner;
+
+public class Assign9 {
+
+    private static final String FILE_NAME = "students.txt";
+
+    public static void createFileIfNotExists() {
+        File file = new File(FILE_NAME);
+        try {
+            if (file.createNewFile()) {
+                System.out.println("File created successfully: " + FILE_NAME);
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred while creating the file.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void addStudentRecords(boolean append) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, append));
+             Scanner scanner = new Scanner(System.in)) {
+
+            if (!append) {
+                writer.write("Name,ID,Grade");
+                writer.newLine();
+            }
+
+            String choice;
+            do {
+                System.out.print("Enter Student Name: ");
+                String name = scanner.nextLine();
+
+                System.out.print("Enter Student ID: ");
+                String id = scanner.nextLine();
+
+                System.out.print("Enter Student Grade: ");
+                String grade = scanner.nextLine();
+
+                writer.write(name + "," + id + "," + grade);
+                writer.newLine();
+
+                System.out.print("Do you want to add another record? (yes/no): ");
+                choice = scanner.nextLine();
+
+            } while (choice.equalsIgnoreCase("yes"));
+
+            System.out.println("Student record(s) saved successfully.");
+
+        } catch (IOException e) {
+            System.out.println("Error writing to file.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void displayStudentRecords() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            System.out.println("\n===== Student Records =====");
+
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+
+                if (data.length == 3) {
+                    System.out.printf("Name: %-20s ID: %-10s Grade: %-5s%n",
+                            data[0], data[1], data[2]);
+                } else {
+                    System.out.println(line);
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found. Please create records first.");
+        } catch (IOException e) {
+            System.out.println("Error reading the file.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        createFileIfNotExists();
+
+        do {
+            System.out.println("\n===== Student Information Management =====");
+            System.out.println("1. Add Student Records (Append)");
+            System.out.println("2. Add Student Records (Overwrite)");
+            System.out.println("3. Display All Student Records");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+
+            while (!scanner.hasNextInt()) {
+                System.out.print("Invalid input. Please enter a number: ");
+                scanner.next();
+            }
+
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addStudentRecords(true); // Append mode
+                    break;
+
+                case 2:
+                    addStudentRecords(false); // Overwrite mode
+                    break;
+
+                case 3:
+                    displayStudentRecords();
+                    break;
+
+                case 4:
+                    System.out.println("Exiting application. Goodbye!");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+
+        } while (choice != 4);
+
+        scanner.close();
+    }
+}
